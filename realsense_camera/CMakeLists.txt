@@ -7,6 +7,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 # View the makefile commands during build
 #set(CMAKE_VERBOSE_MAKEFILE on)
 
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
 # Set compile flags
 set(CMAKE_CXX_FLAGS "-fPIE -fPIC -std=c++11 -O2 -D_FORTIFY_SOURCE=2 -fstack-protector -Wformat -Wformat-security -Wall ${CMAKE_CXX_FLAGS}")
 # Flags executables
@@ -15,6 +17,8 @@ set(CMAKE_EXE_LINKER_FLAGS "-pie -z noexecstack -z relro -z now")
 set(CMAKE_SHARED_LINKER_FLAGS "-z noexecstack -z relro -z now ${CMAKE_SHARED_LINKER_FLAGS}")
 
 option(USE_SYSTEM_LIBREALSENSE "Build realsense_camera against system librealsense, not the one built with catkin" OFF)
+
+SET(USE_SYSTEM_LIBREALSENSE ON)
 
 set(REALSENSE_CATKIN_BASED_DEPS
   dynamic_reconfigure
@@ -31,7 +35,11 @@ set(REALSENSE_CATKIN_BASED_DEPS
 )
 
 if(USE_SYSTEM_LIBREALSENSE)
-  find_package(realsense REQUIRED)
+    FIND_PATH(realsense_INCLUDE_DIR librealsense HINTS "/usr/local/include")
+    FIND_LIBRARY(realsense_LIBRARY realsense HINTS "/usr/local/lib")
+
+    FIND_PATH(realsense_INCLUDE_DIRS librealsense HINTS "/usr/local/include")
+    FIND_LIBRARY(realsense_LIBRARIES realsense HINTS "/usr/local/lib")
 else()
   list(APPEND REALSENSE_CATKIN_BASED_DEPS librealsense)
 endif()
@@ -111,11 +119,11 @@ endif()
 add_dependencies(${PROJECT_NAME}_nodelet ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_gencfg)
 add_dependencies(${PROJECT_NAME}_nodelet ${catkin_EXPORTED_TARGETS})
 
-add_executable(get_debug_info src/get_debug_info.cpp)
-target_link_libraries(get_debug_info ${catkin_LIBRARIES})
-if(USE_SYSTEM_LIBREALSENSE)
-  target_link_libraries(get_debug_info PRIVATE realsense::realsense)
-endif()
+#add_executable(get_debug_info src/get_debug_info.cpp)
+#target_link_libraries(get_debug_info ${catkin_LIBRARIES})
+#if(USE_SYSTEM_LIBREALSENSE)
+#  target_link_libraries(get_debug_info PRIVATE realsense::realsense)
+#endif()
 
 if (CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
@@ -144,7 +152,8 @@ if (CATKIN_ENABLE_TESTING)
 endif()
 
 # Install nodelet library
-install(TARGETS ${PROJECT_NAME}_nodelet get_debug_info
+install(TARGETS ${PROJECT_NAME}_nodelet
+    #get_debug_info
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
