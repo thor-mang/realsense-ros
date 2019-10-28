@@ -24,10 +24,10 @@
     <arg name="depth_fps"           default="" />
     <arg name="color_fps"           default="" />
 
-    <arg name="enable_depth"        default="true" />
+    <arg name="enable_depth"        default="false" />
     <arg name="enable_color"        default="true" />
-    <arg name="enable_ir"           default="true" />
-    <arg name="enable_ir2"          default="true" />
+    <arg name="enable_ir"           default="false" />
+    <arg name="enable_ir2"          default="false" />
     <arg name="enable_fisheye"      default="false" />
     <arg name="enable_imu"          default="false" />
 
